@@ -16,6 +16,8 @@ COMMENT=
 
 LICENSE=	APACHE20
 
+BUILD_DEPENDS=	app-builder:devel/app-builder
+
 USES=		electron:6 node:12,build
 USE_NODE=	npm
 USE_ELECTRON=	prefetch extract prebuild build:builder
