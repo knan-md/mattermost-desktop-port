@@ -23,4 +23,15 @@ USE_NODE=	npm
 USE_ELECTRON=	prefetch extract prebuild build:builder
 PREFETCH_TIMESTAMP=	1584962395
 
+do-build:
+	@(cd ${BUILD_WRKSRC}; \
+		${NPM_CMD} run build)
+	@(cd ${BUILD_WRKSRC}; if ! ${DO_MAKE_BUILD} ${ALL_TARGET}; then \
+		if [ -n "${BUILD_FAIL_MESSAGE}" ] ; then \
+			${ECHO_MSG} "===> Compilation failed unexpectedly."; \
+			(${ECHO_CMD} "${BUILD_FAIL_MESSAGE}") | ${FMT_80} ; \
+		fi; \
+		${FALSE}; \
+	fi)
+
 .include <bsd.port.mk>
