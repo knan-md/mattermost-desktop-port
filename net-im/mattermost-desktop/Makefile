@@ -23,6 +23,8 @@ USE_NODE=	npm
 USE_ELECTRON=	prefetch extract prebuild build:builder
 PREFETCH_TIMESTAMP=	1584962395
 
+SUB_FILES=	${PORTNAME}
+
 do-build:
 	@(cd ${BUILD_WRKSRC}; \
 		${NPM_CMD} run build)
@@ -33,5 +35,8 @@ do-build:
 		fi; \
 		${FALSE}; \
 	fi)
+
+do-install:
+	${INSTALL_SCRIPT} ${WRKDIR}/${PORTNAME} ${STAGEDIR}${PREFIX}/bin
 
 .include <bsd.port.mk>
