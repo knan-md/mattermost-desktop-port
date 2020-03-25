@@ -25,6 +25,10 @@ GH_PROJECT=	desktop
 
 SUB_FILES=	${PORTNAME}
 
+pre-build:
+	(cd ${BUILD_WRKSRC}/src/node_modules/simple-spellchecker/dict && \
+		for x in `ls *.zip`; do unzip $${x}; done)
+
 do-build:
 	@(cd ${BUILD_WRKSRC}; \
 		${NPM_CMD} run build)
