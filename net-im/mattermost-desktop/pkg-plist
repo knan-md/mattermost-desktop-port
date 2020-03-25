@@ -1,0 +1,3 @@
+bin/mattermost-desktop
+%%DATADIR%%/resources/app.asar
+%%DATADIR%%/resources/electron.asar

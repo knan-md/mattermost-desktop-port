@@ -1,18 +1,15 @@
 # $FreeBSD$
 
 PORTNAME=	mattermost-desktop
-DISTVERSION=	4.4.0
 DISTVERSIONPREFIX=	v
-DISTNAME=	desktop-${DISTVERSION}
-DIST_SUBDIR=	${PORTNAME}
+DISTVERSION=	4.4.0
 CATEGORIES=	net-im
 MASTER_SITES=	GH
-USE_GITHUB=	yes
-GH_ACCOUNT=	mattermost
-GH_PROJECT=	desktop
+DISTNAME=	desktop-${DISTVERSION}
+DIST_SUBDIR=	${PORTNAME}
 
 MAINTAINER=	erik.inge.bolso@modirum.com
-COMMENT=	
+COMMENT=	Desktop app for Mattermost
 
 LICENSE=	APACHE20
 
@@ -22,6 +19,9 @@ USES=		electron:6 node:12,build
 USE_NODE=	npm
 USE_ELECTRON=	prefetch extract prebuild build:builder
 PREFETCH_TIMESTAMP=	1584962395
+USE_GITHUB=	yes
+GH_ACCOUNT=	mattermost
+GH_PROJECT=	desktop
 
 SUB_FILES=	${PORTNAME}
 
@@ -38,5 +38,8 @@ do-build:
 
 do-install:
 	${INSTALL_SCRIPT} ${WRKDIR}/${PORTNAME} ${STAGEDIR}${PREFIX}/bin
+	${MKDIR} ${STAGEDIR}${DATADIR}
+	cd ${WRKSRC}/release/linux-unpacked && \
+		${COPYTREE_SHARE} resources ${STAGEDIR}${DATADIR}
 
 .include <bsd.port.mk>
