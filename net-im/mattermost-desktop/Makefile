@@ -42,6 +42,11 @@ do-build:
 
 do-install:
 	${INSTALL_SCRIPT} ${WRKDIR}/${PORTNAME} ${STAGEDIR}${PREFIX}/bin
+	${INSTALL_DATA} ${FILESDIR}/mattermost.desktop \
+		${STAGEDIR}${PREFIX}/share/applications
+	${MKDIR} ${STAGEDIR}${PREFIX}/share/icons/hicolor/scalable/apps
+	${INSTALL_DATA} ${WRKSRC}/resources/linux/icon.svg \
+		${STAGEDIR}${PREFIX}/share/icons/hicolor/scalable/apps/mattermost.svg
 	${MKDIR} ${STAGEDIR}${DATADIR}
 	cd ${WRKSRC}/release/linux-unpacked && \
 		${COPYTREE_SHARE} resources ${STAGEDIR}${DATADIR}

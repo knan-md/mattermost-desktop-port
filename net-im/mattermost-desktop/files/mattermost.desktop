@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Encoding=UTF-8
+Name=Mattermost
+Comment=Mattermost Desktop application
+Icon=mattermost
+Exec=mattermost-desktop
+Categories=Network;InstantMessaging;
+Terminal=false
