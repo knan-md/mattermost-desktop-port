@@ -13,7 +13,9 @@ COMMENT=	Desktop app for Mattermost
 
 LICENSE=	APACHE20
 
-BUILD_DEPENDS=	app-builder:devel/app-builder
+FETCH_DEPENDS=	git:devel/git
+BUILD_DEPENDS=	app-builder:devel/app-builder \
+	unzip:archivers/unzip
 
 USES=		electron:6 node:12,build
 USE_NODE=	npm
