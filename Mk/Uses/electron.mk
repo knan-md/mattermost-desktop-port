@@ -94,7 +94,7 @@
 #			Additional flags to pass to the specified packaging
 #			module. The default flags are defined in this file.
 #
-# MAINTAINER:	tagattie@yandex.com
+# MAINTAINER:	tagattie@FreeBSD.org
 
 .if !defined(_INCLUDE_USES_ELECTRON_MK)
 _INCLUDE_USES_ELECTRON_MK=	yes
@@ -318,7 +318,7 @@ electron-generate-electron-zip:
 		${FIND} . -type f -perm ${BINMODE} -exec ${CHMOD} 755 {} ';'
 	@${MKDIR} ${WRKDIR}/.cache/electron
 	@cd ${WRKDIR}/electron-dist && \
-		${ZIP_CMD} -q -r ${WRKDIR}/.cache/electron/electron-v${UPSTREAM_ELECTRON_VER}-freebsd-x64.zip .
+		${ZIP_CMD} -q -r ${WRKDIR}/.cache/electron/electron-v${UPSTREAM_ELECTRON_VER}-freebsd-${ARCH:S/amd64/x64/:S/i386/ia32/}.zip .
 	@cd ${WRKDIR}/.cache/electron && \
 		${SHA256} -r electron-*.zip | \
 		${SED} -e 's/ / */' > SHASUMS256.txt-${UPSTREAM_ELECTRON_VER}
@@ -335,7 +335,7 @@ electron-generate-electron-zip:
 		${FIND} . -type f -perm ${BINMODE} -exec ${CHMOD} 755 {} ';'
 	@${MKDIR} ${WRKDIR}/.cache/electron
 	@cd ${WRKDIR}/electron-dist && \
-		${ZIP_CMD} -q -r ${WRKDIR}/.cache/electron/electron-v${ELECTRON_VER}-linux-x64.zip .
+		${ZIP_CMD} -q -r ${WRKDIR}/.cache/electron/electron-v${ELECTRON_VER}-linux-${ARCH:S/amd64/x64/:S/i386/ia32/}.zip .
 	@cd ${WRKDIR}/.cache/electron && \
 		${SHA256} -r electron-*.zip | \
 		${SED} -e 's/ / */' > SHASUMS256.txt-${ELECTRON_VER}
@@ -352,7 +352,7 @@ electron-generate-chromedriver-zip:
 		${FIND} . -type f -perm ${BINMODE} -exec ${CHMOD} 755 {} ';'
 	@${MKDIR} ${WRKDIR}/.cache/electron
 	@cd ${WRKDIR}/electron-dist && \
-		${ZIP_CMD} -q -r ${WRKDIR}/.cache/electron/chromedriver-v${UPSTREAM_CHROMEDRIVER_VER}-freebsd-x64.zip .
+		${ZIP_CMD} -q -r ${WRKDIR}/.cache/electron/chromedriver-v${UPSTREAM_CHROMEDRIVER_VER}-freebsd-${ARCH:S/amd64/x64/:S/i386/ia32/}.zip .
 	@cd ${WRKDIR}/.cache/electron && \
 		${SHA256} -r chromedriver-*.zip | \
 		${SED} -e 's/ / */' > SHASUMS256.txt-${UPSTREAM_CHROMEDRIVER_VER}
@@ -412,6 +412,7 @@ ALL_TARGET=	# empty
 .endif
 
 MAKE_ENV+=	ELECTRON_SKIP_BINARY_DOWNLOAD=1 # effective electron >=6
+MAKE_ENV+=	PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1	# don't download browser for playwright
 MAKE_ENV+=	PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1	# don't download chromium for puppeteer
 MAKE_ENV+=	SASS_FORCE_BUILD=true		# always rebuild native node-sass module
 MAKE_ENV+=	USE_SYSTEM_7ZA=true		# always use system 7za
