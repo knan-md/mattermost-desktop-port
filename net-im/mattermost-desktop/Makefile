@@ -2,7 +2,7 @@
 
 PORTNAME=	mattermost-desktop
 DISTVERSIONPREFIX=	v
-DISTVERSION=	4.4.2
+DISTVERSION=	4.5.0
 CATEGORIES=	net-im
 MASTER_SITES=	GH
 DISTNAME=	desktop-${DISTVERSION}
@@ -17,7 +17,7 @@ FETCH_DEPENDS=	git:devel/git
 BUILD_DEPENDS=	app-builder:devel/app-builder \
 	unzip:archivers/unzip
 
-USES=		electron:6 node:12,build
+USES=		electron:7 node:12,build
 USE_NODE=	npm
 USE_ELECTRON=	prefetch extract prebuild build:builder
 PREFETCH_TIMESTAMP=	1584962395

@@ -2,4 +2,3 @@ bin/mattermost-desktop
 share/applications/mattermost.desktop
 share/icons/hicolor/scalable/apps/mattermost.svg
 %%DATADIR%%/resources/app.asar
-%%DATADIR%%/resources/electron.asar
