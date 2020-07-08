@@ -15,9 +15,12 @@ LICENSE=	APACHE20
 
 FETCH_DEPENDS=	git:devel/git
 BUILD_DEPENDS=	app-builder:devel/app-builder \
-	unzip:archivers/unzip
+	unzip:archivers/unzip \
+	autoreconf:devel/autotools \
+	bash:shells/bash
+LIB_DEPENDS=	libpng.so:graphics/png
 
-USES=		electron:7 node:12,build
+USES=		electron:7 node:12,build gmake
 USE_NODE=	npm
 USE_ELECTRON=	prefetch extract prebuild build:builder
 PREFETCH_TIMESTAMP=	1584962395
@@ -26,6 +29,8 @@ GH_ACCOUNT=	mattermost
 GH_PROJECT=	desktop
 
 SUB_FILES=	${PORTNAME}
+
+CC?=		cc
 
 pre-build:
 	(cd ${BUILD_WRKSRC}/src/node_modules/simple-spellchecker/dict && \
