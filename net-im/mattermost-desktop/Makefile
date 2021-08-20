@@ -2,7 +2,7 @@
 
 PORTNAME=	mattermost-desktop
 DISTVERSIONPREFIX=	v
-DISTVERSION=	4.6.1
+DISTVERSION=	4.7.1
 CATEGORIES=	net-im
 MASTER_SITES=	GH
 DISTNAME=	desktop-${DISTVERSION}
@@ -20,7 +20,7 @@ BUILD_DEPENDS=	app-builder:devel/app-builder \
 	bash:shells/bash
 LIB_DEPENDS=	libpng.so:graphics/png
 
-USES=		electron:7 node:12,build gmake
+USES=		electron:12 node:14,build gmake
 USE_NODE=	npm
 USE_ELECTRON=	prefetch extract prebuild build:builder
 PREFETCH_TIMESTAMP=	1584962395
@@ -31,10 +31,6 @@ GH_PROJECT=	desktop
 SUB_FILES=	${PORTNAME}
 
 CC?=		cc
-
-pre-build:
-	(cd ${BUILD_WRKSRC}/src/node_modules/simple-spellchecker/dict && \
-		for x in `ls *.zip`; do unzip $${x}; done)
 
 do-build:
 	@(cd ${BUILD_WRKSRC}; \
@@ -52,10 +48,12 @@ do-install:
 	${INSTALL_DATA} ${FILESDIR}/mattermost.desktop \
 		${STAGEDIR}${PREFIX}/share/applications
 	${MKDIR} ${STAGEDIR}${PREFIX}/share/icons/hicolor/scalable/apps
-	${INSTALL_DATA} ${WRKSRC}/resources/linux/icon.svg \
+	${INSTALL_DATA} ${WRKSRC}/dist/assets/linux/icon.svg \
 		${STAGEDIR}${PREFIX}/share/icons/hicolor/scalable/apps/mattermost.svg
 	${MKDIR} ${STAGEDIR}${DATADIR}
 	cd ${WRKSRC}/release/linux-unpacked && \
 		${COPYTREE_SHARE} resources ${STAGEDIR}${DATADIR}
+	cd ${WRKSRC} && \
+		${COPYTREE_SHARE} dist ${STAGEDIR}${DATADIR}
 
 .include <bsd.port.mk>
