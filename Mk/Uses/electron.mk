@@ -102,7 +102,7 @@ _INCLUDE_USES_ELECTRON_MK=	yes
 # Electron uses Node (actually a package manager) for build
 .include "${USESDIR}/node.mk"
 
-_VALID_ELECTRON_VERSIONS=	4 5 6 7 8
+_VALID_ELECTRON_VERSIONS=	4 5 6 7 8 9 10 11 12
 _VALID_ELECTRON_FEATURES=	prefetch extract prebuild build
 _VALID_ELECTRON_FEATURE_BUILDS=	builder packager
 
@@ -202,6 +202,7 @@ electron-fetch-node-modules:
 			${SETENV} HOME=${WRKDIR} ${NPM_CMD} ci --ignore-scripts --no-progress && \
 			${RM} package.json package-lock.json; \
 		done; \
+		${FIND} ${WRKDIR}/npm-cache -type d -exec ${CHMOD} 755 {} ';'; \
 		cd ${WRKDIR} && \
 		${MTREE_CMD} -cbnSp npm-cache | ${MTREE_CMD} -C | ${SED} \
 			-e 's:time=[0-9.]*:time=${PREFETCH_TIMESTAMP}.000000000:' \
@@ -419,6 +420,7 @@ MAKE_ENV+=	USE_SYSTEM_7ZA=true		# always use system 7za
 MAKE_ENV+=	USE_SYSTEM_APP_BUILDER=true	# always use system app-builder for electron-builder
 MAKE_ENV+=	XDG_CACHE_HOME=${WRKDIR}/.cache
 MAKE_ENV+=	npm_config_build_from_source=true
+MAKE_ENV+=	npm_config_python=${PYTHON_CMD}
 SUB_LIST+=	ELECTRON_VER_MAJOR=${ELECTRON_VER_MAJOR}
 
 .endif # _INCLUDE_USES_ELECTRON_MK
