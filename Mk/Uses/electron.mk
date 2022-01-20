@@ -102,7 +102,7 @@ _INCLUDE_USES_ELECTRON_MK=	yes
 # Electron uses Node (actually a package manager) for build
 .include "${USESDIR}/node.mk"
 
-_VALID_ELECTRON_VERSIONS=	4 5 6 7 8 9 10 11 12
+_VALID_ELECTRON_VERSIONS=	4 5 6 7 8 9 10 11 12 13 14 15 16
 _VALID_ELECTRON_FEATURES=	prefetch extract prebuild build
 _VALID_ELECTRON_FEATURE_BUILDS=	builder packager
 
@@ -209,7 +209,8 @@ electron-fetch-node-modules:
 			-e 's:\([gu]id\)=[0-9]*:\1=0:g' \
 			-e 's:flags=.*:flags=none:' \
 			-e 's:^\.:./npm-cache:' > npm-cache.mtree && \
-		${TAR} -cz --options 'gzip:!timestamp' \
+		${SETENV} LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 \
+			${TAR} -cz --options 'gzip:!timestamp' \
 			-f ${DISTDIR}/${DIST_SUBDIR}/${_DISTFILE_prefetch} @npm-cache.mtree; \
 		${RM} -r ${WRKDIR}; \
 	fi
@@ -235,7 +236,8 @@ electron-fetch-node-modules:
 			-e 's:\([gu]id\)=[0-9]*:\1=0:g' \
 			-e 's:flags=.*:flags=none:' \
 			-e 's:^\.:./yarn-offline-cache:' > yarn-offline-cache.mtree; \
-		${TAR} -cz --options 'gzip:!timestamp' \
+		${SETENV} LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 \
+			${TAR} -cz --options 'gzip:!timestamp' \
 			-f ${DISTDIR}/${DIST_SUBDIR}/${_DISTFILE_prefetch} @yarn-offline-cache.mtree; \
 		${RM} -r ${WRKDIR}; \
 	fi
@@ -253,7 +255,9 @@ electron-install-node-modules:
 			if [ -f ${WRKSRC}/$${dir}/$${f} ]; then \
 				${MV} -f ${WRKSRC}/$${dir}/$${f} ${WRKSRC}/$${dir}/$${f}.bak; \
 			fi; \
-			${CP} -f $${dir}/$${f} ${WRKSRC}/$${dir}; \
+			if [ -f $${dir}/$${f} ]; then \
+				${CP} -f $${dir}/$${f} ${WRKSRC}/$${dir}; \
+			fi; \
 		done; \
 	done
 	@${ECHO_MSG} "===>  Moving pre-fetched node modules to WRKSRC"
@@ -272,7 +276,9 @@ electron-install-node-modules:
 			if [ -f ${WRKSRC}/$${dir}/$${f} ]; then \
 				${MV} -f ${WRKSRC}/$${dir}/$${f} ${WRKSRC}/$${dir}/$${f}.bak; \
 			fi; \
-			${CP} -f $${dir}/$${f} ${WRKSRC}/$${dir}; \
+			if [ -f $${dir}/$${f} ]; then \
+				${CP} -f $${dir}/$${f} ${WRKSRC}/$${dir}; \
+			fi; \
 		done; \
 	done
 	@${ECHO_MSG} "===>  Installing node modules from pre-fetched cache"
@@ -298,6 +304,18 @@ BUILD_DEPENDS+=	${NPM_PKGNAME}>0:${NPM_PORTDIR}	# npm is needed for node-gyp
 .	if !defined(UPSTREAM_ELECTRON_VER)
 IGNORE=	does not specify the electron version used in the upstream source. Please refer to package-lock.json or yarn.lock for this value and set this appropriately.
 .	endif
+.   endif
+
+.   if !defined(UPSTREAM_CHROMEDRIVER_VER)
+.	if ${NODE_PKG_MANAGER} == npm
+UPSTREAM_CHROMEDRIVER_VER!=	${GREP} -e 'resolved.*electron-chromedriver' ${PKGJSONSDIR}/package-lock.json | \
+				head -n 1 | awk -F- '{print $$NF}' | sed -E 's/\.[a-z]+.*$$//'
+.	elif ${NODE_PKG_MANAGER} == yarn
+UPSTREAM_CHROMEDRIVER_VER!=	${GREP} -e 'resolved.*electron-chromedriver' ${PKGJSONSDIR}/yarn.lock | \
+				head -n 1 | awk -F- '{print $$NF}' | sed -E 's/\.[a-z]+.*$$//'
+.	endif
+CHROMEDRIVER_DOWNLOAD_URL=	https://github.com/electron/electron/releases/download/v${UPSTREAM_CHROMEDRIVER_VER}
+CHROMEDRIVER_DOWNLOAD_URL_HASH!=	${SHA256} -q -s ${CHROMEDRIVER_DOWNLOAD_URL}
 .   endif
 
 _USES_build+=	290:electron-generate-electron-zip \
@@ -343,7 +361,7 @@ electron-generate-electron-zip:
 .   endif
 
 electron-generate-chromedriver-zip:
-.   if defined(UPSTREAM_CHROMEDRIVER_VER)
+.   if defined(UPSTREAM_CHROMEDRIVER_VER) && ${UPSTREAM_CHROMEDRIVER_VER} != ""
 	@${ECHO_MSG} "===>  Preparing distribution files of chromedriver"
 	@${RM} -r ${WRKDIR}/electron-dist
 	@${MKDIR} ${WRKDIR}/electron-dist
@@ -351,10 +369,10 @@ electron-generate-chromedriver-zip:
 		${TAR} -cf - . | ${TAR} -xf - -C ${WRKDIR}/electron-dist
 	@cd ${WRKDIR}/electron-dist && \
 		${FIND} . -type f -perm ${BINMODE} -exec ${CHMOD} 755 {} ';'
-	@${MKDIR} ${WRKDIR}/.cache/electron
+	@${MKDIR} ${WRKDIR}/.cache/electron/${CHROMEDRIVER_DOWNLOAD_URL_HASH}
 	@cd ${WRKDIR}/electron-dist && \
-		${ZIP_CMD} -q -r ${WRKDIR}/.cache/electron/chromedriver-v${UPSTREAM_CHROMEDRIVER_VER}-freebsd-${ARCH:S/amd64/x64/:S/i386/ia32/}.zip .
-	@cd ${WRKDIR}/.cache/electron && \
+		${ZIP_CMD} -q -r ${WRKDIR}/.cache/electron/${CHROMEDRIVER_DOWNLOAD_URL_HASH}/chromedriver-v${UPSTREAM_CHROMEDRIVER_VER}-freebsd-${ARCH:S/amd64/x64/:S/i386/ia32/}.zip .
+	@cd ${WRKDIR}/.cache/electron/${CHROMEDRIVER_DOWNLOAD_URL_HASH} && \
 		${SHA256} -r chromedriver-*.zip | \
 		${SED} -e 's/ / */' > SHASUMS256.txt-${UPSTREAM_CHROMEDRIVER_VER}
 .   else
@@ -412,6 +430,7 @@ DO_MAKE_BUILD=	${SETENV} ${MAKE_ENV} ${_ELECTRON_MAKE_CMD} . ${ELECTRON_MAKE_FLA
 ALL_TARGET=	# empty
 .endif
 
+MAKE_ENV+=	ELECTRON_OVERRIDE_DIST_PATH=${LOCALBASE}/share/electron${ELECTRON_VER_MAJOR}
 MAKE_ENV+=	ELECTRON_SKIP_BINARY_DOWNLOAD=1 # effective electron >=6
 MAKE_ENV+=	PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1	# don't download browser for playwright
 MAKE_ENV+=	PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1	# don't download chromium for puppeteer
